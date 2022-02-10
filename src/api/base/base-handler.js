@@ -1,6 +1,21 @@
+const ClientError = require('../../exceptions/ClientError');
+
 class BaseHandler{
     constructor(){
+    }
 
+    baseBind(){
+        this.baseJson = this.baseJson.bind(this);
+        this.success = this.success.bind(this);
+        this.userFail = this.userFail.bind(this);
+        this.validationFail = this.validationFail.bind(this);
+        this.serverFail = this.serverFail.bind(this);
+        this.commonServerFail = this.commonServerFail.bind(this);
+
+        this.post = this.post.bind(this);
+        this.single = this.single.bind(this);
+        this.update = this.update.bind(this);
+        this.delete = this.delete.bind(this);
     }
 
     baseJson(h, code=200, status="success", msg="-", data = null){
@@ -13,7 +28,7 @@ class BaseHandler{
             json.data = data
         }
 
-        h.response(json)
+        const response = h.response(json)
 
         response.code(code)
 
@@ -44,72 +59,91 @@ class BaseHandler{
         try {
             let data = {}
             return this.success(h, "Data Dibuat!", data);
-          } catch (error) {
+        } catch (error) {
             if (error instanceof ClientError) {
                 return this.validationFail(h, error.statusCode, error.message, null)
             }
-      
+        
             // Server ERROR!
             console.error(error);
             return this.commonServerFail(h);
-          }
+        }
     }
 
-    single(req, h){
+    all(req, h, ctx){
         try {
-            const { id } = request.params;
-
+            const { id } = req.params;
+    
             let data = {
                 id:1
             }
-            return this.success(h, "Success!", data);
-          } catch (error) {
+            return ctx.success(h, "Success get all!", data);
+        } catch (error) {
             if (error instanceof ClientError) {
-              return this.validationFail(h, error.statusCode, error.message, null)
+                return ctx.validationFail(h, error.statusCode, error.message, null)
             }
-      
+        
             // Server ERROR!
             console.error(error);
-            return this.commonServerFail(h);
-          }
+            return ctx.commonServerFail(h);
+        }
     }
-
-    update(req, h){
+    
+    single(req, h, ctx){
         try {
-            const { id } = request.params;
-
+            const { id } = req.params;
+    
             let data = {
                 id:1
             }
-            return this.success(h, "Updated!", data);
-          } catch (error) {
+            return ctx.success(h, "Success!", data);
+        } catch (error) {
             if (error instanceof ClientError) {
-                return this.validationFail(h, error.statusCode, error.message, null)
+                return ctx.validationFail(h, error.statusCode, error.message, null)
             }
-      
+        
             // Server ERROR!
             console.error(error);
-            return this.commonServerFail(h);
-          }
+            return ctx.commonServerFail(h);
+        }
     }
-
-    delete(req, h){
+    
+    update(req, h, ctx){
         try {
-            const { id } = request.params;
-
+            const { id } = req.params;
+    
             let data = {
                 id:1
             }
-            return this.success(h, "Deleted!", data);
-          } catch (error) {
+            return ctx.success(h, "Updated!", data);
+        } catch (error) {
             if (error instanceof ClientError) {
-                return this.validationFail(h, error.statusCode, error.message, null)
+                return ctx.validationFail(h, error.statusCode, error.message, null)
             }
       
             // Server ERROR!
             console.error(error);
-            return this.commonServerFail(h);
-          }
+            return ctx.commonServerFail(h);
+        }
+    }
+    
+    delete(req, h, ctx){
+        try {
+            const { id } = req.params;
+    
+            let data = {
+                id:1
+            }
+            return ctx.success(h, "Deleted!", data);
+        } catch (error) {
+            if (error instanceof ClientError) {
+                return ctx.validationFail(h, error.statusCode, error.message, null)
+            }
+        
+            // Server ERROR!
+            console.error(error);
+            return ctx.commonServerFail(h);
+        }
     }
 }
 

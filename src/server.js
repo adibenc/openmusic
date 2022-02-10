@@ -6,15 +6,17 @@ const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 
 // notes
-const notes = require('./api/notes');
-const NotesService = require('./services/postgres/NotesService');
-const NotesValidator = require('./validator/notes');
+// const notes = require('./api/notes');
+// const NotesService = require('./services/postgres/NotesService');
+// const NotesValidator = require('./validator/notes');
+
+const albums = require('./api/albums');
 
 const init = async () => {
 	// const notesService = new NotesService();
 
 	const server = Hapi.server({
-		port: process.env.PORT,
+		port: process.env.PORT || 3000,
 		host: process.env.HOST,
 		routes: {
 			cors: {
@@ -42,6 +44,12 @@ const init = async () => {
 	// 		},
 	// 	},
 	// ]);
+	
+	await server.register([
+		{
+			plugin: albums
+		},
+	]);
 
 	await server.start();
 	console.log(`Run @ ${server.info.uri}`);
