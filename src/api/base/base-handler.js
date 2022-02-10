@@ -1,7 +1,19 @@
 const ClientError = require('../../exceptions/ClientError');
 
 class BaseHandler{
+    service = null
+    
     constructor(){
+    }
+
+    setService(service){
+        this.service = service
+
+        return this
+    }
+
+    getService(){
+        return this.service
     }
 
     baseBind(){
