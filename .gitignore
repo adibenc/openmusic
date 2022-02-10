@@ -1,0 +1,7 @@
+.idea
+node_modules
+.env
+.prod.env
+package-lock.json
+[Dd]ummy*
+[Ss]ecret*
