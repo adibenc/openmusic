@@ -33,7 +33,7 @@ class BaseHandler{
         return this.baseJson(h, 500, 'fail', msg, data)
     }
 
-    commonServerFail(h, ){
+    commonServerFail(h){
         return this.baseJson(h, 500, 'error', 'Maaf, terjadi kegagalan pada server kami.', null)
     }
 
