@@ -5,7 +5,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 const { mapDBToModel } = require('../../utils');
 
+const cl = console.log
+
 class BaseService {
+  allQuery = `select * from table`
   insertQuery = `INSERT INTO notes 
   VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
   
@@ -31,11 +34,24 @@ class BaseService {
     return [id, title, body, tags, createdAt, updatedAt, owner];
   }
   
-  getUpdateData({title, body, tags, }){
+  getUpdateData(id, {title, body, tags, }){
     const updatedAt = createdAt;
     return [title, body, tags, updatedAt, id];
   }
   
+  async all() {
+    const query = {
+      text: this.allQuery,
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Tidak ditemukan');
+    }
+
+    return result.rows;
+  }
+
   async create(obj) {
     const query = {
       text: this.insertQuery,
@@ -52,6 +68,10 @@ class BaseService {
   }
 
   async single(id) {
+    if(isNaN(id)){
+      throw new NotFoundError('Tidak ditemukan');
+    }
+    
     const query = {
       text: this.singleQuery,
       values: [id],
@@ -62,21 +82,18 @@ class BaseService {
       throw new NotFoundError('Tidak ditemukan');
     }
 
-    return result.rows.map(mapDBToModel)[0];
+    return result.rows[0];
   }
 
   async update(id, obj) {
-    const updatedAt = new Date().toISOString();
+    const r1 = await this.single(id);
+
     const query = {
       text: this.updateQuery,
-      values: this.getUpdateData(obj),
+      values: this.getUpdateData(id, obj),
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui. Id tidak ditemukan');
-    }
 
     const { owner } = result.rows[0];
   }

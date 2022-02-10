@@ -10,10 +10,12 @@ class AlbumService extends BaseService{
   updated_at
   */
 
+  allQuery = `select * from albums`
+
   insertQuery = `INSERT INTO albums (name, year, created_at, updated_at)
   VALUES($1, $2, $3, $4) RETURNING id`
   
-  singleQuery = `SELECT notes.*
+  singleQuery = `SELECT albums.*
   FROM albums 
   WHERE albums.id = $1`
 
@@ -32,7 +34,7 @@ class AlbumService extends BaseService{
     return [name, year, createdAt, updatedAt];
   }
   
-  getUpdateData({name, year, }){
+  getUpdateData(id, {name, year, }){
     const updatedAt = new Date().toISOString();
     return [name, year, updatedAt, id];
   }

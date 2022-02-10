@@ -1,4 +1,6 @@
+const { DatabaseError } = require('pg-protocol');
 const ClientError = require('../../exceptions/ClientError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 const cl = console.log
 
 class BaseHandler{
@@ -53,8 +55,8 @@ class BaseHandler{
         return response
     }
 
-    success(h, msg, data){
-        return this.baseJson(h, 200, "success", msg, data)
+    success(h, msg, data, code=200){
+        return this.baseJson(h, code, "success", msg, data)
     }
 
     userFail(h, msg, data){
@@ -79,7 +81,7 @@ class BaseHandler{
             
             let data = this.service.create(req.payload)
 
-            return this.success(h, "Data Dibuat!", data);
+            return this.success(h, "Data Dibuat!", data, 201);
         } catch (error) {
             if (error instanceof ClientError) {
                 return this.validationFail(h, error.statusCode, error.message, null)
@@ -91,13 +93,10 @@ class BaseHandler{
         }
     }
 
-    all(req, h, ctx){
+    async all(req, h, ctx){
         try {
-            const { id } = req.params;
-    
-            let data = {
-                id:1
-            }
+            let data = this.service.all()
+
             return ctx.success(h, "Success get all!", data);
         } catch (error) {
             if (error instanceof ClientError) {
@@ -110,13 +109,11 @@ class BaseHandler{
         }
     }
     
-    single(req, h, ctx){
+    async single(req, h, ctx){
         try {
             const { id } = req.params;
-    
-            let data = {
-                id:1
-            }
+            let data = await this.service.single(id)
+
             return this.success(h, "Success!", data);
         } catch (error) {
             if (error instanceof ClientError) {
@@ -129,16 +126,20 @@ class BaseHandler{
         }
     }
     
-    update(req, h, ctx){
+    async update(req, h, ctx){
         try {
             const { id } = req.params;
-    
-            let data = {
-                id:1
-            }
+            this.validator.validate(this.schema, req.payload)
+            
+            let data = await this.service.update(id, req.payload)
+
             return ctx.success(h, "Updated!", data);
         } catch (error) {
-            if (error instanceof ClientError) {
+            if (error instanceof ClientError || error instanceof NotFoundError) {
+                return ctx.validationFail(h, error.statusCode, error.message, null)
+            }
+
+            if(error instanceof DatabaseError ){
                 return ctx.validationFail(h, error.statusCode, error.message, null)
             }
       
@@ -148,13 +149,11 @@ class BaseHandler{
         }
     }
     
-    delete(req, h, ctx){
+    async delete(req, h, ctx){
         try {
             const { id } = req.params;
-    
-            let data = {
-                id:1
-            }
+            let data = this.service.delete(id)
+
             return ctx.success(h, "Deleted!", data);
         } catch (error) {
             if (error instanceof ClientError) {
