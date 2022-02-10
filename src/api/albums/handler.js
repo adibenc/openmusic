@@ -1,10 +1,9 @@
 const BaseHandler = require('../base/base-handler');
 
 class AlbumsHandler extends BaseHandler{
-  constructor() {
-    super()
-    // this._service = service;
-    // this._validator = validator;
+  constructor(service, schema, validator) {
+    super(service, schema, validator)
+    
     this.baseBind()
   }
 }

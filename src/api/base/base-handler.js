@@ -1,9 +1,15 @@
 const ClientError = require('../../exceptions/ClientError');
+const cl = console.log
 
 class BaseHandler{
     service = null
-    
-    constructor(){
+    schema = null
+    validator = null
+
+    constructor(service, schema, validator){
+        this.service = service;
+        this.schema = schema;
+        this.validator = validator;
     }
 
     setService(service){
@@ -67,9 +73,12 @@ class BaseHandler{
         return this.baseJson(h, 500, 'error', 'Maaf, terjadi kegagalan pada server kami.', null)
     }
 
-    post(req, h){
+    post(req, h, ctx){
         try {
-            let data = {}
+            this.validator.validate(this.schema, req.payload)
+            
+            let data = this.service.create(req.payload)
+
             return this.success(h, "Data Dibuat!", data);
         } catch (error) {
             if (error instanceof ClientError) {
@@ -108,15 +117,15 @@ class BaseHandler{
             let data = {
                 id:1
             }
-            return ctx.success(h, "Success!", data);
+            return this.success(h, "Success!", data);
         } catch (error) {
             if (error instanceof ClientError) {
-                return ctx.validationFail(h, error.statusCode, error.message, null)
+                return this.validationFail(h, error.statusCode, error.message, null)
             }
         
             // Server ERROR!
             console.error(error);
-            return ctx.commonServerFail(h);
+            return this.commonServerFail(h);
         }
     }
     

@@ -11,9 +11,13 @@ const Inert = require('@hapi/inert');
 // const NotesValidator = require('./validator/notes');
 
 const albums = require('./api/albums');
+const AlbumService = require('./services/postgres/AlbumService');
+const { AlbumPayloadSchema } = require('./validator/schemas');
+const Validator = require('./validator/base-validator');
 
 const init = async () => {
 	// const notesService = new NotesService();
+	const albumService = new AlbumService();
 
 	const server = Hapi.server({
 		port: process.env.PORT || 3000,
@@ -47,7 +51,12 @@ const init = async () => {
 	
 	await server.register([
 		{
-			plugin: albums
+			plugin: albums,
+			options: {
+				service: albumService,
+				schema: AlbumPayloadSchema,
+				validator: Validator
+			},
 		},
 	]);
 
