@@ -3,15 +3,18 @@ class BaseHandler{
 
     }
 
-    baseJson(h, code, status, msg, data){
-        if(!status){
-            status = "success"
-        }
-        h.response({
+    baseJson(h, code=200, status="success", msg="-", data = null){
+        let json = {
             status: status,
             message: msg,
-            data: data,
-        })
+        }
+        
+        if(data){
+            json.data = data
+        }
+
+        h.response(json)
+
         response.code(code)
 
         return response
@@ -43,15 +46,71 @@ class BaseHandler{
             return this.success(h, "Data Dibuat!", data);
           } catch (error) {
             if (error instanceof ClientError) {
-              const response = validationFail(h, error.statusCode, error.message, {})
-              
-              return response;
+                return this.validationFail(h, error.statusCode, error.message, null)
             }
       
             // Server ERROR!
-            const response = this.commonServerFail(h)
             console.error(error);
-            return response;
+            return this.commonServerFail(h);
+          }
+    }
+
+    single(req, h){
+        try {
+            const { id } = request.params;
+
+            let data = {
+                id:1
+            }
+            return this.success(h, "Success!", data);
+          } catch (error) {
+            if (error instanceof ClientError) {
+              return this.validationFail(h, error.statusCode, error.message, null)
+            }
+      
+            // Server ERROR!
+            console.error(error);
+            return this.commonServerFail(h);
+          }
+    }
+
+    update(req, h){
+        try {
+            const { id } = request.params;
+
+            let data = {
+                id:1
+            }
+            return this.success(h, "Updated!", data);
+          } catch (error) {
+            if (error instanceof ClientError) {
+                return this.validationFail(h, error.statusCode, error.message, null)
+            }
+      
+            // Server ERROR!
+            console.error(error);
+            return this.commonServerFail(h);
+          }
+    }
+
+    delete(req, h){
+        try {
+            const { id } = request.params;
+
+            let data = {
+                id:1
+            }
+            return this.success(h, "Deleted!", data);
+          } catch (error) {
+            if (error instanceof ClientError) {
+                return this.validationFail(h, error.statusCode, error.message, null)
+            }
+      
+            // Server ERROR!
+            console.error(error);
+            return this.commonServerFail(h);
           }
     }
 }
+
+module.exports = BaseHandler;
